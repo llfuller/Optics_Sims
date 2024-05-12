@@ -1,3 +1,5 @@
+---Optics Sims---
+
 Implementing MPI (parallel processing) unit cell optics using MEEP for metamaterials training
   - Multiple sims spread across multi-core CPU
   - Single sim spread across multi-core CPU

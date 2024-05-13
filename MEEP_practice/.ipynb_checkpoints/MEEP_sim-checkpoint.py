@@ -40,24 +40,27 @@ if __name__ == "__main__":
     
     # In[42]:
     
-    
-    TiO2 = mp.Medium(index=2.7)  # Example index, adjust based on actual data
-    glass = mp.Medium(index=1.5)
-    
+    if sim_group_ID == 0:
+        TiO2 = mp.Medium(index=100000)  # Example index, adjust based on actual data
+        glass = mp.Medium(index=1.5)
+    if sim_group_ID != 0:
+        TiO2 = mp.Medium(index=2.7)  # Example index, adjust based on actual data
+        glass = mp.Medium(index=1.5)
+    if sim_group_ID == 3:
+        TiO2 = mp.Medium(index=1)  # Example index, adjust based on actual data
+        glass = mp.Medium(index=1.5)
+
     
     # ## Geometry Setup:
     # Define the geometry of your unit cell. Assume dimensions as needed or based on the project details:
     
     # In[43]:
-    
-    
-    make3D = False
-    
+            
     #  Choose dimensions that are multiple times larger than the wavelength to simulate periodicity correctly. For instance, 
     # if simulating a single unit cell, you might choose sizes around a few micrometers, say 2μm.
     x_size = 2.0 # micrometers
-    y_size = 6.0 # micrometers
-    z_size = 10.0 # micrometers
+    y_size = 8.0 # micrometers
+    z_size = 16.0 # micrometers
     
     # size based on this paper:
     # https://www.nature.com/articles/s41598-019-43588-7#:~:text=Optical%20metamaterials%20based%20on%20the,new%20generation%20of%20solar%20cells.
@@ -72,18 +75,20 @@ if __name__ == "__main__":
     
     material_z_offset = -2.0
     
-    cell_size = mp.Vector3(make3D*x_size, y_size, z_size)  # Define the cell size
+    cell_size = mp.Vector3(0, y_size, z_size)  # Define the cell size
+
+    make3D = False
+
     geometry = [mp.Block(material=TiO2,
                          center=mp.Vector3(0, 0, glass_base_thickness + tio2_base_thickness + tio2_ridge_height/2 + material_z_offset),
-                         size=mp.Vector3(make3D*mp.inf, tio2_ridge_y_width, tio2_ridge_height)),
+                         size=mp.Vector3(mp.inf, tio2_ridge_y_width, tio2_ridge_height)),
                 mp.Block(material=TiO2,
                          center=mp.Vector3(0, 0, glass_base_thickness + tio2_base_thickness/2 + material_z_offset),
-                         size=mp.Vector3(make3D*mp.inf, mp.inf, tio2_base_thickness)),
+                         size=mp.Vector3(mp.inf, mp.inf, tio2_base_thickness)),
                 mp.Block(material=glass,
                          center=mp.Vector3(0, 0, glass_base_thickness/2 + material_z_offset),
-                         size=mp.Vector3(make3D*mp.inf, mp.inf, glass_base_thickness))]
-    
-    
+                         size=mp.Vector3(mp.inf, mp.inf, glass_base_thickness))]
+        
     # In[44]:
 
     # Define the formatter function
@@ -245,7 +250,7 @@ if __name__ == "__main__":
     
     
     # Run the simulation with the recorder
-    sim.run(mp.at_every(1, record_ez), until=200)  # Adjust the interval as needed
+    sim.run(mp.at_every(1, record_ez), until=70)  # Adjust the interval as needed
     
     # Convert the recorded data into a NumPy array
     ex_time_series_array = np.array(ex_time_series)
@@ -279,7 +284,7 @@ if __name__ == "__main__":
         print(z_increment)
         print(z_size)
         print(map_matrix.shape[0])
-        bias = z_size/resolution
+        bias = 2*z_size/resolution
         for i in range(map_matrix.shape[0]):
             for j in range(map_matrix.shape[1]):
                 # Draw a line above the current square if there is a material change above
@@ -373,7 +378,7 @@ if __name__ == "__main__":
         
         # Save the animation as an MP4 file
         plt.tight_layout()
-        anim.save(f'e{field_component}_field_animation_simID={sim_group_ID}.mp4', writer='ffmpeg', dpi=300)
+        anim.save(f'Visualizations/e{field_component}_field_animation_simID={sim_group_ID}.mp4', writer='ffmpeg', dpi=300)
         plt.show()
     
     save_anim_fields("x", map_matrix, y_range, z_range)

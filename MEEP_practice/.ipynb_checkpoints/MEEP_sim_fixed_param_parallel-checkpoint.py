@@ -13,6 +13,7 @@ from matplotlib.ticker import FuncFormatter
 import meep as mp
 import time
 import os
+import argparse
 
 # Prevent plots from showing up as interactive when running code.
 # Allow code to run without waiting for user to close plots.
@@ -36,10 +37,17 @@ matplotlib.use('Agg')
 
 
 if __name__ == "__main__":
+
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description='Process runtime data for a specific run number.')
+    parser.add_argument('--run_number', type=int, required=True, help='The run number to filter data by.')
+    args = parser.parse_args()
+
+    run_number = args.run_number
+
     # Divide all available MPI processes into 'n' groups
-    sim_group_ID = mp.divide_parallel_processes(mp.count_processors())
     print(f"Running with {mp.count_processors()} processors")
-    print(f"Running for group {sim_group_ID}")
+    print(f"Run number {run_number}")
 
     # ## Define Materials:
     # Define the optical properties of titanium dioxide (TiO2) and glass. MEEP uses relative permittivity (epsilon) to define material properties:
@@ -166,8 +174,8 @@ if __name__ == "__main__":
     # Set labels and title
     plt.xlabel('y (micrometers)')
     plt.ylabel('z (micrometers)')
-    plt.title(f'Unit Cell Material Map in Y-Z Plane (Unbounded material in X and Y); np={mp.count_processors()}; run={sim_group_ID}')
-    plt.savefig(f'Visualizations/timing/map_plot_np={mp.count_processors()}_run={sim_group_ID}.png', dpi=300, bbox_inches='tight')
+    plt.title(f'Unit Cell Material Map in Y-Z Plane (Unbounded material in X and Y); np={mp.count_processors()}; run={run_number}')
+    plt.savefig(f'Visualizations/timing/map_plot_np={mp.count_processors()}_run={run_number}.png', dpi=300, bbox_inches='tight')
 
     # Show the plot
     plt.show()
@@ -291,11 +299,11 @@ if __name__ == "__main__":
     # Run the simulation with the recorder
     # Also measure the runtime
     start_time = time.time()
-    sim.run(mp.at_every(1, record_ez), until=70)  # Adjust the interval as needed
+    sim.run(mp.at_every(1, record_ez), until=35)  # Adjust the interval as needed
     runtime = time.time() - start_time
     if not os.path.exists("meep_runtimes.txt"): 
         open("meep_runtimes.txt", 'a').close()
-    update_runtime("meep_runtimes.txt", column_id=int(sim_group_ID), runtime=runtime)
+    update_runtime("meep_runtimes.txt", column_id=int(run_number), runtime=runtime)
     
     # Convert the recorded data into a NumPy array
     ex_time_series_array = np.array(ex_time_series)
@@ -393,7 +401,7 @@ if __name__ == "__main__":
         elif field_component == "z":
             use_time_series = ez_time_series_array
     
-        title = f'E{field_component} Field Distribution over Time for np={mp.count_processors()} run={sim_group_ID}'
+        title = f'E{field_component} Field Distribution over Time for np={mp.count_processors()} run={run_number}'
     
         # Initialize the plot
         fig, ax = plt.subplots()
@@ -423,7 +431,7 @@ if __name__ == "__main__":
         
         # Save the animation as an MP4 file
         plt.tight_layout()
-        anim.save(f'Visualizations/timing/e{field_component}_field_animation_np={mp.count_processors()}_run={sim_group_ID}.mp4', writer='ffmpeg', dpi=300)
+        anim.save(f'Visualizations/timing/e{field_component}_field_animation_np={mp.count_processors()}_run={run_number}.mp4', writer='ffmpeg', dpi=300)
         plt.show()
     
     save_anim_fields("x", map_matrix, y_range, z_range)

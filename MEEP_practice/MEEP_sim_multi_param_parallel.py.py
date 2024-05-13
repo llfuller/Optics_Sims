@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.ticker import FuncFormatter
 import meep as mp
+import time
+import os
+
 
 # Runs in parallel
 
@@ -248,9 +251,55 @@ if __name__ == "__main__":
     
     # In[59]:
     
+    def update_runtime(file_path, column_id, runtime):
+        """
+        Update the file to append runtime to the line corresponding to column_id.
+        If the line does not exist, add a new line for this column_id.
     
+        Args:
+        file_path (str): The path to the file where the data is stored.
+        column_id (int): The identifier of the column to update.
+        runtime (float): The runtime value to append to the file.
+        """
+        # Open the file to read the current content
+        with open(file_path, 'r') as file:
+            # Read all lines and process them
+            lines = file.readlines()
+    
+        # Prepare to update or add a new line
+        updated = False
+        new_lines = []
+    
+        for line in lines:
+            # Split the line into components assuming they are separated by tabs
+            parts = line.strip().split('\t')
+            # Check if the first part is the column_id we are looking for
+            if parts[0] == str(column_id):
+                # If found, append the new runtime to this line
+                parts.append(str(runtime))
+                # Join and update the line
+                new_lines.append('\t'.join(parts) + '\n')
+                updated = True
+            else:
+                # Otherwise, keep the line as is
+                new_lines.append(line)
+    
+        # If we did not find the column_id, add a new line for it
+        if not updated:
+            new_lines.append(f"{column_id}\t{runtime}\n")
+    
+        # Finally, write all the lines back to the file
+        with open(file_path, 'w') as file:
+            file.writelines(new_lines)
+
     # Run the simulation with the recorder
+    # Also measure the runtime
+    start_time = time.time()
     sim.run(mp.at_every(1, record_ez), until=70)  # Adjust the interval as needed
+    runtime = time.time() - start_time()
+    if not os.path.exists("meep_runtimes.txt"): 
+        open("meep_runtimes.txt", 'a').close()
+    update_runtime("meep_runtimes.txt", column_id=int(sim_group_ID), runtime=runtime)
     
     # Convert the recorded data into a NumPy array
     ex_time_series_array = np.array(ex_time_series)

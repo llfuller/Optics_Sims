@@ -292,7 +292,7 @@ if __name__ == "__main__":
     # Also measure the runtime
     start_time = time.time()
     sim.run(mp.at_every(1, record_ez), until=70)  # Adjust the interval as needed
-    runtime = time.time() - start_time()
+    runtime = time.time() - start_time
     if not os.path.exists("meep_runtimes.txt"): 
         open("meep_runtimes.txt", 'a').close()
     update_runtime("meep_runtimes.txt", column_id=int(sim_group_ID), runtime=runtime)

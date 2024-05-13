@@ -13,9 +13,11 @@ import meep as mp
 import time
 import os
 
+# Prevent plots from showing up as interactive when running code.
+# Allow code to run without waiting for user to close plots.
+matplotlib.use('Agg')
 
 # Runs in parallel
-
 
 # TO run: 
 # mpirun -np 4 python MEEP_sim_fixed_param_parallel.py

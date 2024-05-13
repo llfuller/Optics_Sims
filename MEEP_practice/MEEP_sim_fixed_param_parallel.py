@@ -18,7 +18,7 @@ import os
 
 
 # TO run: 
-# mpirun -np 4 python MEEP_sim.py
+# mpirun -np 4 python MEEP_sim_fixed_param_parallel.py
 # num_cores is 4 here.
 
 # ## Units in MEEP:
@@ -43,15 +43,8 @@ if __name__ == "__main__":
     
     # In[42]:
     
-    if sim_group_ID == 0:
-        TiO2 = mp.Medium(index=100000)  # Example index, adjust based on actual data
-        glass = mp.Medium(index=1.5)
-    if sim_group_ID != 0:
-        TiO2 = mp.Medium(index=2.7)  # Example index, adjust based on actual data
-        glass = mp.Medium(index=1.5)
-    if sim_group_ID == 3:
-        TiO2 = mp.Medium(index=1)  # Example index, adjust based on actual data
-        glass = mp.Medium(index=1.5)
+    TiO2 = mp.Medium(index=2.7)  # Example index, adjust based on actual data
+    glass = mp.Medium(index=1.5)
 
     
     # ## Geometry Setup:
@@ -69,12 +62,12 @@ if __name__ == "__main__":
     # https://www.nature.com/articles/s41598-019-43588-7#:~:text=Optical%20metamaterials%20based%20on%20the,new%20generation%20of%20solar%20cells.
     
     # Material thicknesses
-    tio2_ridge_height = 3.0*(sim_group_ID+1.0)/2.0 # micrometers
-    tio2_base_thickness = 1.0*(sim_group_ID+1.0)/2.0  # micrometers (100 nm)
+    tio2_ridge_height = 3.0 # micrometers
+    tio2_base_thickness = 1.0  # micrometers (100 nm)
     glass_base_thickness = 1.0  # micrometers (1000 nm)
     
     # horizontal widths:
-    tio2_ridge_y_width = 1.0*(sim_group_ID+1.0)/2.0  # micrometers (1000 nm)
+    tio2_ridge_y_width = 1.0  # micrometers (1000 nm)
     
     material_z_offset = -2.0
     
@@ -170,8 +163,8 @@ if __name__ == "__main__":
     # Set labels and title
     plt.xlabel('y (micrometers)')
     plt.ylabel('z (micrometers)')
-    plt.title(f'Unit Cell Material Map in Y-Z Plane (Unbounded material in X and Y): Group={sim_group_ID}')
-    plt.savefig(f'map_plot_simID={sim_group_ID}.png', dpi=300, bbox_inches='tight')
+    plt.title(f'Unit Cell Material Map in Y-Z Plane (Unbounded material in X and Y); np={mp.count_processors()}; run={sim_group_ID}')
+    plt.savefig(f'map_plot_np={mp.count_processors()}_run={sim_group_ID}.png', dpi=300, bbox_inches='tight')
 
     # Show the plot
     plt.show()
@@ -397,7 +390,7 @@ if __name__ == "__main__":
         elif field_component == "z":
             use_time_series = ez_time_series_array
     
-        title = f'E{field_component} Field Distribution over Time for simID={sim_group_ID}'
+        title = f'E{field_component} Field Distribution over Time for np={mp.count_processors()} run={sim_group_ID}'
     
         # Initialize the plot
         fig, ax = plt.subplots()
@@ -427,7 +420,7 @@ if __name__ == "__main__":
         
         # Save the animation as an MP4 file
         plt.tight_layout()
-        anim.save(f'Visualizations/e{field_component}_field_animation_simID={sim_group_ID}.mp4', writer='ffmpeg', dpi=300)
+        anim.save(f'Visualizations/timing/e{field_component}_field_animation_np={mp.count_processors()}_run={sim_group_ID}.mp4', writer='ffmpeg', dpi=300)
         plt.show()
     
     save_anim_fields("x", map_matrix, y_range, z_range)

@@ -15,7 +15,7 @@ import meep as mp
 
 
 # TO run: 
-# mpirun -np 4 python MEEP_sim.py
+# mpirun -np 4 python MEEP_sim_multi_param_parallel.py.py
 # num_cores is 4 here.
 
 # ## Units in MEEP:

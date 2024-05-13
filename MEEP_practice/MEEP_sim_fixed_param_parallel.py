@@ -6,6 +6,7 @@
 
 import numpy as np
 import scipy
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.ticker import FuncFormatter
@@ -166,7 +167,7 @@ if __name__ == "__main__":
     plt.xlabel('y (micrometers)')
     plt.ylabel('z (micrometers)')
     plt.title(f'Unit Cell Material Map in Y-Z Plane (Unbounded material in X and Y); np={mp.count_processors()}; run={sim_group_ID}')
-    plt.savefig(f'map_plot_np={mp.count_processors()}_run={sim_group_ID}.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'Visualizations/timing/map_plot_np={mp.count_processors()}_run={sim_group_ID}.png', dpi=300, bbox_inches='tight')
 
     # Show the plot
     plt.show()
